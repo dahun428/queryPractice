@@ -1,0 +1,87 @@
+create table ex3_6
+(
+    employee_id number(6,0) primary key,
+    emp_name varchar(20) not null,
+    salary number(6,0) not null,
+    manager_id number(6,0) 
+);
+
+select * from ex3_6;
+insert into ex3_6
+(employee_id, emp_name, salary, manager_id)
+select employee_id, first_name || ' ' || last_name, salary, manager_id
+from employees2
+where manager_id = 124
+and salary between 2000 and 3000;
+
+select employee_id, first_name || ' ' || last_name
+from employees
+where commission_pct is null;
+
+
+select employee_id, salary
+from employees
+where salary between 2000 and 2500
+order by employee_id;
+
+select employee_id, salary
+from employees
+where salary >= 2000 
+and salary <= 2500
+order by employee_id;
+
+select employee_id, salary
+from employees
+where salary in (2000,3000,4000)
+order by employee_id;
+
+select employee_id, salary
+from employees
+where salary =Any (2000,3000,4000)
+order by employee_id;
+
+select employee_id, salary
+from employees
+where salary not in (2000,3000,4000)
+order by employee_id;
+
+select employee_id, salary
+from employees
+where salary <>All(2000,3000,4000)
+order by employee_id;
+
+create table emp_test
+as select employee_id, department_id, salary from employees where department_id in (50, 80);
+select * from emp_test;
+
+merge into emp_test a
+using (
+        select employee_id, department_id, salary
+        from employees
+        where department_id in (80,70) 
+    ) b
+on (a.employee_id = b.employee_id)
+when matched then 
+    update set a.salary  = round(a.salary * 1.1)
+when not matched then
+    insert (a.employee_id, a.department_id, a.salary)
+    values (b.employee_id, b.department_id, b.salary)
+where b.salary > 1000;
+
+select * from emp_test;
+
+merge into emp_test a
+using (select employee_id, department_id, salary
+        from employees
+        where department_id in (80,70) ) b
+on (a.employee_id = b.employee_id)
+when matched then 
+ update set a.salary = round(a.salary * 1.1)
+ delete where a.department_id = 70
+when not matched then 
+ insert (a.employee_id, a.department_id, a.salary)
+ values (b.employee_id, b.department_id, round(b.salary * 1.2));
+ 
+
+
+

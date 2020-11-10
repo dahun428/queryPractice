@@ -1,0 +1,70 @@
+--문자함수
+--문자함수는 연산 대상이 문자이며 반환 값은 함수에 따라 문자나 숫자를 반환한다.
+--INITCAP(char), LOWER(char), UPPER(char)
+--INITCAP : 들어오는 CHAR의 첫문자는 대문자, 나머지는 소문자로 반환 / 공백과 알파벳을 제외한 문자
+select initcap('never say goodbye'), initcap('never6say*good가bye') from dual; -- Never Say Goodbye / Never6say*Good가Bye
+--LOWER 함수는 매개변수로 들어오는 문자를 모두 소문자로 , UPPER 함수는 대문자로 변환해 반환한다.
+select lower('NEVER SAY GOODBYE'), upper('never say goodbye') from dual; --never say goodbye / NEVER SAY GOODBYE
+
+--CONCAT(char1, char2), SUBSTR(char, pos, len), SUBSTRB(char, pos, len)
+--CONCAT 함수는 || 연산자처럼 매개변수로 들어오는 두 문자를 붙여 반환한다.
+select concat('I have ', 'A Dream'), 'I have ' || 'A Dream' from dual;
+
+--SUBSTR는 문자함수중 가장 많이 사용되는 함수, 
+--잘라올 대사 문자열인 CHAR의 POS 번째 문자부터 LEN 길이 만큼 잘라낸 결과를 반환 POS 0 DEFAULT 1 =>  첫번째 문자 , 음수 => CHAR 문자열 맨 끝에서 시작한 상대적 위치를 의미,
+-- LEN 값 생랼 => POS 번째부터 모든 문자
+SELECT SUBSTR('ABCDEFG', 1,4), SUBSTR('ABCDEFG',-1,4) FROM DUAL; --ABCD / G
+
+-- SUBSTRB는 문자 개수가 아닌 문자열의 바이트 수만큼 잘라낸 결과를 반환한다.
+SELECT SUBSTRB('ABCDEFG',1,4), SUBSTRB('가나다라마바사', 1, 4) FROM DUAL;
+
+-- LTRIM(CHAR, SET), RTRIM(CHAR,SET)
+-- LTRIM 매개변수로 들어온 CHAR 문자열에서 SET으로 지정된 문자열을 왼쪽 끝에서 제거한 후 나머지 문자열을 반환.
+-- RTRIM 오른쪽 끝에서 제거한 뒤 나머지 문자열을 반환한다.
+SELECT LTRIM('ABCDEFABC','ABC'), LTRIM('가나다라','가'), 
+        RTRIM('ABCDEFGABC', 'ABC'), RTRIM('가나다라','라')
+FROM DUAL; -- DEFABC / 나다라 / ABCDEFG / 가나다
+-- SET에 명시된 문자를 한 번씩만 제거한다. 문자열 중간에 있다면 문자열 전체를 반환
+
+SELECT LTRIM('가나다라','나'), RTRIM('가나다라','나') FROM DUAL; -- 가나다라 / 가나다라
+-- LTRIM과 RTRIM 은 주어진 문자열에서 좌측 혹은 우측의 공백을 제거할 때 많이 사용한다.
+
+--LPAD(expr1,n,expr2) , RPAD(expr1, n, expr2)
+--LPAD 함수는 매개변수로 들어온 expr2 문자열 (생략할때 디폴트는 공백 한 문자) 을 n 자리 만큼 왼쪽으로 채워 expr1을 반환하는 함수
+-- 매개변수 n은expr2와 expr1 이 합쳐져 반환되는 총 자릿수를 의미한다.
+
+create table ex4_1 (phone_num varchar2(30));
+insert into ex4_1 values('111-1100');
+select * from ex4_1;
+select LPAD(phone_num, 12, '(02)') from ex4_1;
+--RPAD는 LPAD와 반대로 오른 쪽에 해당 문자열을 채워 반환한다.
+select RPAD(phone_num,12,'(02)') from ex4_1;
+
+--replace(char, search_str, replace_str), translate(expr, from_str, to_str)
+--replace 함수는 char 문자열에서 search_str 문자열을 찾아 이를 replace_str문자열로 대체한 결과를 반환하는 함수
+select replace('나는 너를 모르는데 너는 나를 알겠는가 ?', '나', '너') from dual; -- 너는 너를 모르는데 너는 너를 알겠는가 ?
+--보통 문자열에서 공백을 제거할 때 ltrim 이나 rtrim 을 사용하지만 이 두함수는 문자열 중간에 있는 공백은 제거하지 못한다. 하지만 replace 함수를 사용하면 문자열 전체에 있는 공백을 모두 제거할 수 있다.
+
+select ltrim (' abc def '), rtrim(' abc def '), replace(' abc def ', ' ' ,'') from dual; --abc def / ' abc def' / abcdef
+
+--translate 함수는 replace와 유사하다. expr 문자열에서 from_str에 해당하는 문자를 찾아 to_str로 바꾼 결과를 반환하는데 , replace와 다른 점은 문자열 자체가 아닌 문자 한글자씩 매핑해 바꾼 결과를 반환한다.
+select
+    replace('나는 너를 모르는데 너는 나를 알겠는가?', '나는', '너를') as rep,
+    translate('나는 너를 모르는데 너는 나를 알겠는가?','나는','너를') as trn from dual;
+-- 너는 너를 모르는데 너는 나를 알겠는가 ? / 너를 너를 모르를데 너를 너를 알겠를가?
+
+--INSTR(str, substr, pos, occur) , LENGTH(chr), LENGTHB(chr)
+--INSTR 함수는 STR 문자열에서 SUBSTR과 일치하는 위치를 반환하는데, pos는 시작 위치로 디폴트 값은 1, occur 은 몇번째 일치하는지를 명시하며 디폴트 값은 1이다.
+SELECT INSTR('내가 만약 외로울 때면 내가 만약 괴로울 때면 내가 만약 즐거울 때면','만약') AS INSTR1,
+    INSTR('내가 만약 외로울 때면, 내가 만약 괴로울 때면, 내가 만약 즐거울 때면', '만약',5) AS INSTR2,
+    INSTR('내가 만약 외로울 때면, 내가 만약 괴로울 때면, 내가 만약 즐거울 때면', '만약',5,2) AS INSTR3 FROM DUAL; -- 4 / 18 / 32
+
+--LENGTH 함수는 매개변수로 들어온 문자열의 개수를 반환
+--LENGTHB 함수는 해당 문자열의 바이트 수를 반환
+SELECT LENGTH('대한민국'), LENGTHB('대한민국') FROM DUAL; -- 4 / 8
+--날짜함수
+--SYSDATE / SYSTIMESTAMP
+SELECT SYSDATE, SYSTIMESTAMP FROM DUAL;
+
+--ADD_MONTHS (DATE, INTGER)
+--함수는 매개변수로 들어온 날짜에 INTGER 만큼 월을 더한 날짜를 반환

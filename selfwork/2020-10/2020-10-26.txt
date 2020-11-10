@@ -1,0 +1,37 @@
+create table orders
+(
+ order_id number(12,0) primary key,
+ order_date date,
+ order_mode varchar2(8),
+ customer_id number(6,0),
+ order_status number(2,0),
+ order_total number(8,2) default 0,
+ sales_rep_id number(6,0),
+ promotion_id number(6,0),
+ constraints check1 check( order_mode in ('direct','online'))
+
+)
+
+
+create table order_items
+(
+    order_id number(12,0) default 0,
+    line_item_id number(3,0) default 0,
+    product_id number(3,0),
+    unit_price number(8,2) default 0,
+    quantity number(8,0) default 0
+
+);
+
+create table promotions
+(
+    promo_id    number(6,0) primary key,
+    promo_name  varchar2(20)
+
+);
+
+이진수 기준 32자리를 십진수로 변환하기 위해 0.30103을 곱한다.
+
+create sequence orders_seq increment by 1 start with 1000 MINVALUE 1 MAXVALUE 999999999;
+
+

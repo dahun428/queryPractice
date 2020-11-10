@@ -1,0 +1,185 @@
+-- 조인 종류 : 내부, 외부, 동등, 안티, 셀프, 세미 , 카타시안 조인,  ANSI 조인
+-- 조인 연산자에 따른 구분 : 동등 조인, 안티 조인
+-- 조인 대상에 따른 구분 :  셀프 조인
+-- 조인 조건에 따른 구분 : 내부, 외부, 세미, 카타시안 조인
+-- 기타 : ANSI 조인
+
+-- 내부 조인과 외부 조인
+-- 동등 조인 (EQUI-JOIN) : WHERE 절에서 등호 연산자를 사용해 2개 이상의 테이블이나 뷰를 연결한 조인
+-- 조인 조건은 컬럼 단위로 기술
+
+select a.employee_id, a.first_name, a.department_id, b.department_name
+from employees a, departments b
+where a.department_id = b.department_id;
+
+-- 세미 조인
+-- 서브쿼리를 사용해 존재하는 데이터만 메인 쿼리에서 추출하는 조인 방법 in , exists 연산자를 사용한 조인
+-- exists 사용
+select department_id, department_name
+from departments a
+where exists( select * 
+            from employees b
+            where a.department_id = b.department_id
+            and b.salary > 3000)
+order by a.department_name ;
+
+-- in 사용
+select department_id, department_name
+from departments a
+where a.department_id in ( select department_id
+                            from employees b
+                            where b.salary > 3000 )
+order by department_name;
+
+--안티조인
+-- 서브 쿼리의 B 테이블에는 없는 메인 쿼리의 A 테이블의 데이터만 추출하는 조인 방법
+-- not in, not exists 연산자 사용 , 세미조인과 반대 개념
+
+select a.employee_id, a.first_name, a.department_id, b.department_name
+from employees a, departments b
+where a.department_id = b.department_id
+and a.department_id not in ( select department_id
+                                from departments
+                                where manager_id is null);
+                                
+select *
+from employees a
+where not exists ( select b.department_id, b.department_name, b.manager_id, b.location_id
+                    from departments b
+                    where a.department_id = b.department_id
+                    and manager_id is null);
+select b.department_id, b.department_name, b.manager_id, b.location_id
+                    from employees a, departments b
+                    where a.department_id = b.department_id
+                    and a.manager_id is null;
+select * from departments;
+
+select department_id, department_name
+from departments a
+where not exists (select * from employees b where a.department_id = b.department_id and b.salary > 3000);
+
+--셀프 조인 (SELF-JOIN) 서로 다른 두 테이블이 아닌 동일한 한 테이블을 사용해 조인하는 방법
+select a.employee_id , a.first_name, b.employee_id, b.first_name, a.department_id
+from employees a, employees b
+where a.employee_id < b.employee_id
+and a.department_id = b.department_id
+and a.department_id = 50;
+
+
+--외부조인
+-- 일반 조인을 확장한 개념으로 조인 조건에 만족하는 데이터 뿐만 아니라, 어느 한 쪽 테이블에 조인 조건에 명시된 컬럼에 값이 없거나 (NULL 이더라도) 해당 로우가 아예 없더라도 데이터를 모두 추출한다.
+
+-- 일반조인
+SELECT a.department_id, a.department_name, b.job_id, b.department_id
+from departments a, job_history b
+where a.department_id = b.department_id(+);
+
+select a.department_id, a.department_name, b.job_id, b.department_id
+from departments a
+left outer join job_history b on a.department_id = b.department_id;
+
+select a.employee_id, a.first_name, b.job_id, b.department_id
+from employees a, job_history b
+where a.employee_id = b.employee_id(+)
+and a.department_id = b.department_id(+);
+
+select a.employee_id, a.first_name, b.job_id, b.department_id
+from employees a
+left outer join job_history b on a.employee_id = b.employee_id
+and a.department_id = b.department_id;
+
+-- 조인 대상 테이블 중 데이터가 없는 테이블 조인 조건에 (+)를 붙인다.
+-- 외부 조인의 조인 조건이 여러 개 일때 모든 조건에 (+) 를 붙인다.
+-- 한번에 한 테이블에만 외부 조인을 할 수 있다.
+-- (+) 연산자가 붙은 조건과 OR를 같이 사용할 수 없다.
+-- (+) 연산자가 붙은 조건에는 IN 연산자를 같이 사용할 수 없다. (단, IN 절에 포함되는 값이 1개인 때는 사용 가능)
+
+--카타시안 조인 CATASIAN PRODUCT
+-- where 절에 조인 조건이 없는 조인
+-- from 절에 테이블을 명시했으나, 두 테이블 간 조인 조건이 없는 조인
+-- 결과 건수 : n1 * n2
+
+select a.employee_id, a.first_name , b.department_id, b.department_name
+from employees a, departments b;
+
+-- ANSI 조인
+-- ANSI SQL 문법을 사용한 조인 
+
+select a.employee_id, a.first_name, b.department_id, b.department_name
+from employees a, departments b
+where a.department_id = b.department_id
+and a.hire_date >= to_date('2003-01-01','YYYY-MM-DD');
+
+select a.employee_id, a.first_name, b.department_id, b.department_name
+from employees a
+inner join departments b on a.department_id = b.department_id
+where a.hire_date >= to_date('2003-01-01','YYYY-MM-DD');
+
+select a.employee_id, a.first_name, department_id, b.department_name
+from employees a
+inner join departments b
+using (department_id)
+where a.hire_date >= to_date('2003-01-01', 'YYYY-MM-DD');
+
+select a.employee_id, a.first_name, b.job_id, b.department_id
+from employees a,
+    job_history b
+where a.employee_id = b.employee_id(+)
+and a.department_id = b.department_id(+);
+
+select a.employee_id, a.first_name, b.job_id, b.department_id
+from employees a
+left outer join job_history b
+on a.employee_id = b.employee_id
+and a.department_id = b.department_id;
+
+select employee_id, a.first_name, b.job_id, department_id
+from employees a
+left outer join job_history b
+using(employee_id, department_id);
+
+-- full outer 조인은 외부조인의 하나
+-- ANIS 조인에서만 제공
+select * from hong_a;
+select * from hong_b;
+select a.emp_id, b.emp_id
+from hong_a a
+full outer join hong_b b
+on (a.emp_id = b.emp_id);
+
+--서브쿼리
+-- sql 문장 안에서 보조로 사용되는 또다른 SELECT 문
+-- 중간 단계 혹은 보조 역할을 하는 select 문
+-- select , from ,where 절 모두에서 사용 , insert , upDATE, merge, delete 문 사용
+-- 메인쿼리와의 연관서에 따라 -> 연관성 없는 서브쿼리 / 연관성 잇는 서브 쿼리
+-- 형태에따라 -> 일반 서브 쿼리 (select 절), 인라인 뷰 (from 절), 중첩쿼리(where 절)
+
+--연관성 없는 서브쿼리 : 메인 쿼리와의 연관성이 없는 서브 쿼리, 메인 테이블과 조인 조건이 걸리지않는 서브 쿼리를 가리킨다.
+select count(*) from employees where salary >= (select avg(salary) from employees );
+select count(*) from employees where department_id in (select department_id from departments where department_id is null);
+
+
+select employee_id, first_name, job_id
+from employees
+where (employee_id, job_id) in (select employee_id , job_id from job_history);
+create table employees3 as select * from employees;
+select * from employees3;
+
+--연관성 있는 서브쿼리 : 메인쿼리와의 연관성이 있는 서브쿼리, 즉 메인 테이블과 조인 조건이 걸린 서브쿼리를 말한다.
+select a.department_id, a.department_name
+from departments a
+where exists (select 1 from job_history b where a.department_id = b.department_id);
+
+select 
+    a.employee_id,
+    (select b.first_name || ' '|| b.
+    from employees b
+    where b.employee_id = b.employee_id) as emp_name
+from job_history a;
+
+
+
+
+
+
+

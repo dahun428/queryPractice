@@ -1,0 +1,25 @@
+select 
+lpad(
+    substr(phone_number, 5)
+    ,12,'(02)')
+from employees;
+
+select 
+   employee_id as 사원번호, 
+   first_name || ' ' || last_name as 사원명 ,
+   hire_date as 입사일자,
+    (to_number(to_char(sysdate, 'YYYY')) - to_number(to_char(hire_date, 'YYYY'))) as 근속년수
+from employees a
+where (to_number(to_char(sysdate, 'YYYY')) - to_number(to_char(hire_date, 'YYYY'))) >= 10
+order by 근속년수 desc;
+
+select replace('###-###-####','-','/') as phone_number from dual;
+select * from employees;
+
+select department_id, sum(salary) from employees group by department_id order by department_id;
+
+select sum(a.salary), a.department_id, b.department_name
+from employees a, departments b
+where a.department_id = b.department_id
+group by rollup(a.department_id, b.department_name)
+having sum(salary) > 5000;

@@ -1,0 +1,70 @@
+select employee_id, first_name ||' '|| last_name as emp_name
+from employees
+where salary > 5000;
+
+select * 
+from employees
+where salary > 5000
+and job_id = 'IT_PROG';
+
+select * from employees
+where salary > 5000 OR job_id = 'IT_PROG' ;
+
+select 
+    a.employee_id, a.first_name, a.department_id, b.department_name
+from employees a, departments b
+where a.department_id = b.department_id;
+
+create table ex3_2
+(
+    emp_id number,
+    emp_name varchar2(100)
+);
+insert into ex3_2(emp_id, emp_name)
+select employee_id, first_name || ' ' || last_name as emp_name
+from employees
+where salary > 5000;
+
+---Merge
+merge into 테이블명
+using (update or insert data)
+on (update 조건)
+when matched then
+	 set col = val1 , ...
+	when update 조건
+ 	delete where update_delete 조건
+when not mateched then
+	insert (col1, col2, ...) values (val1, val2 , ...)
+when insert 조건;
+
+create table ex3_3
+(
+    employee_id number,
+    bonus_amt number default 0
+);
+
+select rownum, employee_id, ROWID 
+from employees
+where rownum < 5;
+
+case when 조건1 then 값1
+      when 조건2 then 값2
+...
+     else 기타 값
+end
+========================================================
+select 
+        employee_id, 
+        salary,
+        case 
+            when salary <= 5000 then 'C등급'
+            when salary > 5000 and salary <= 15000 then 'B등급'
+            else 'A등급'
+        END AS salary_grade
+FROM employees;
+
+
+
+
+
+

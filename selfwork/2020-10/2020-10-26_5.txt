@@ -1,0 +1,34 @@
+--ABS(n) : 매개변수로 숫자를 받아 그 절대값을 반환하는 함수
+select abs(10), abs(-10), abs(-10.123) from dual; -- 10 / 10 / 10.123
+
+--CEIL(n) : 매개변수 n과 같거나 가장 큰 정수를 반환
+select ceil(10.123), ceil(10.541), ceil(11.001) from dual; -- 11/11/12
+
+--FLOOR(n) : ceil 함수와 반대로 매개변수 n보다 작거나 가장 큰 정수 반환
+select floor(10.123), floor(10.541), floor(11.001) from dual; --10/10/11
+
+--ROUND(n,i) 매개변수 n을 소수점 기준 (i+1) 번째에서 반올림한 결과를 반환, i 생략 가능, default 0
+select round(10.154), round(10.541), round(11.001) from dual; -- 10/11/11
+select round(10.154,1), round(10.154,2), round(10.154,3) from dual; -- 10.2/10.15/10.154
+select round(0,3) , round(115.155, -1), round(115.155, -2) from dual; -- 0/120/100
+
+--trunc 반올림하지 않고 n1을 소수저 기준 n2 자리에서 무조건 잘라낸 결과를 반환, n2 생략가능, default 0
+select trunc(115.155), trunc(115.155,1), trunc(115.155,2), trunc(115.155, -2) from dual; -- 115/115.1/115.15/100
+
+--power n2를 n1 제곱한 결과를 반환한다. n1 실수, 정수, n2 가 음수 일때는 n1 은 정수만 가능
+select power(3,2), power(3,3), power(3,3.0001) from dual; -- 9 / 27 /
+
+--SQRT 함수는 N의 제곱근을 반환한다.
+select SQRT(2), SQRT(5) from dual; -- 1.414 / 2.23606
+
+--Mod(n2,n1) 와 reminder(n2,n1) mod 함수는 n2를 n1으로 나눈 나머지 값을 반환한다.
+SELECT MOD(19,4), MOD(19.123,4.2) FROM DUAL; -- 3/ 2.323
+--REMAINDER 함수느 역시 N2를 N1으로 나눈 나머지 값을 반환하는데, 나머지를 구하는 내부적 연산 방법이 MOD 함수와 약간 다르다.
+SELECT remainder(19,4), remainder(19.123,4.2) FROM DUAL;
+
+--EXP(n),LN(n) 그리고 LOG(N2, N1)
+--EXP는 지수함수로 e의 n제곱 값을 반환하고, LN 함수는 자연로그 함수로 밑수가 e인 함수이다. 반면 LOG 는 N2 를 밑수로하는 N1 의 로그 값을 반환한다.
+
+select exp(2), ln(2.713), log(10,100) from dual; -- 7.389056 / 0.9980 / 2
+
+

@@ -1,0 +1,129 @@
+--LNNVL (조건식)
+-- 매개변수로 들어오는 조건식의 결과가 FALSE 나 UNKNOWN 이면 TRUE, TRUE 이면 FALSE를 반환.
+select employee_id, commission_pct
+from employees
+where commission_pct < 0.2;
+-- lnnvl 함수는 매개변수로 들어오는 조건의 결과가 true 이면 false를 , false 나 unknown 이면 true를 반환
+select count(*) from employees where nvl(commission_pct, 0) < 0.2;
+select count(*) from employees where lnnvl(commission_pct >= 0.2);
+
+-- nullif(exrp1, expr2)
+--nullif 함수는 expr1 과 expr2 를 비교해 같으면 null, 같지 않으면 expr1를 반환.
+select employee_id, to_char(start_date , 'YYYY') start_year, to_char(end_date, 'YYYY') end_year
+, nullif(to_char(end_date, 'YYYY'), to_char(start_date, 'YYYY')) null_if_year
+from job_history;
+
+--greatest(expr1, expr2), least(expr1, expr2)
+--greatest :  매개변수로 들어오는 표현식에서 가장 큰 값을 ,leat는 가장 작은 값을 반환하는 함수
+
+select greatest(1,2,3,2) , least(3,1,2,1) from dual; -- 3 / 1
+select greatest('이순신','강감찬','세종대왕'), least('이순신','강감찬','세종대왕') from dual; -- 이순신, 강감찬
+
+-- decode (expr, search1, result1, search2, result2, .. , default)
+-- decode 는 expr 와 seach1을 비교해 두 값이 같으면 result1 을, 같지 않으면 search2와 비교해 값이 같으면 result2를 반환한후, 같은 값이 없으면 default 반환
+
+select employee_id, salary, 
+    case
+        when salary <= 5000 then 'C등급'
+        when salary > 5000 and salary <= 15000 then 'B등급'
+        else 'A등급'
+    end as salary_grade
+from employees;
+
+select * 
+from exp_goods_asia 
+where country = '한국'
+order by seq;
+
+select goods 
+from exp_goods_asia 
+where country = '일본'
+order by seq;
+-- 두 국가가 겹치는 수출 품목은 한 번만 조회되도록 한다.
+select goods
+from exp_goods_asia 
+where country = '한국' 
+union
+select goods
+from exp_goods_asia 
+where country = '일본';
+
+--union all : 중복된 항목도 모두 조회
+select goods
+from exp_goods_asia 
+where country = '한국'
+union all
+select goods 
+from exp_goods_asia 
+where country = '일본';
+
+-- intersect : 교집합
+select goods 
+from exp_goods_asia 
+where country = '한국'
+intersect
+select goods
+from exp_goods_asia 
+where country = '일본';
+
+-- minus : 차집합 // 먼저 위치한 select 문이 기준
+select goods
+from exp_goods_asia 
+where country = '한국'
+minus
+select goods
+from exp_goods_asia 
+where country = '일본';
+
+select goods 
+from exp_goods_asia 
+where country = '일본'
+minus
+select goods
+from exp_goods_asia
+where country = '한국';
+
+--집합 연산자의 제한사항
+-- 1. 집합 연산자로 연결되는 각 select 문의 select 리스트의 개수와 데이터 타입 일치
+select seq, goods
+from exp_goods_asia 
+where country = '한국'
+union
+select seq, goods
+from exp_goods_asia 
+where country = '일본';
+
+select seq, goods
+from exp_goods_asia 
+where country = '한국'
+intersect
+select seq, goods
+from exp_goods_asia
+where country = '일본';
+
+--2. order by 문은 마지막 select 문에만 사용 가능
+select goods 
+from exp_goods_asia 
+where country = '한국'
+union
+select goods
+from exp_goods_asia 
+where country = '일본'
+order by goods;
+
+--3. blob, clob, bfile 타입의 컬럼에 대해서는 집합 연산자 사용 불가능
+--4. union, intersect, minus 연산자는 long 형 컬럼에는 사용할 수 없다.
+--핵심정리
+-- 1. 특정 항목을 그룹으로 묶어 집계한 결과를 반환하도록 하는 쿼리를 그룹쿼리라고 한다.
+-- 3. 그룹쿼리는 집계함수와 group by 절로 구성된다.
+-- 4. 집계함수 : count, sum, min, max, avg, variance ,  stddev
+-- 5. group by 절에서 그룹으로 묶을 항목을 정의하며, select 리스트에서 집계함수를 제외한 모든 컬럼이나 표현식은 group bㅛ wjfdp dnlclgodigksek.
+-- 6. group by 를 수행한 결과에서 추가로 특정 조건을 걸때는 having 절을 사용한다.
+-- 7. group by 절에 rollup 과 cube 를 명시하면 추가적인 소계를 집계할 수 있다. rollup 절은 레벨별로, cube 는 가능한 모든 조합별 소계 집계한다.
+-- 8. select 문으로 반환된 결과를 데이터 집합이라 하는데, 이러한 데이터 집합을 연결하는 역할을 하는 것이 집합 연산자이다.
+-- 9. 집합 연산자는 수학의 집합 개념과 같으며, 합집합은 union, 교집합은 intersect, 차집합은 minus, 이고 union all 은 대상 집합에서 중복된 건까지 모두 추출할 수 있다..
+
+select  to_char( hire_date, 'YYYY') as hireDate, count(*)
+from employees
+group by to_char( hire_date, 'YYYY')
+order by hireDate asc;
